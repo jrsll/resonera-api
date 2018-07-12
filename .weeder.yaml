@@ -1,0 +1,16 @@
+- package:
+  - name: resonera
+  - section:
+    - name: exe:resonera-exe
+    - message:
+      - name: Redundant build-depends entry
+      - depends: base
+  - section:
+    - name: test:resonera-test
+    - message:
+      - name: Weeds exported
+      - module:
+        - name: Spec.Common
+        - identifier: randomCreateArticleParam
+
+resonera
