@@ -69,16 +69,16 @@ unfavoriteArticle curUser slug = do
   getArticle (Just curUser) slug
 
 class (Monad m) => ArticleRepo m where
-  findArticles :: Maybe Slug -> Maybe Bool -> Maybe CurrentUser
-               -> ArticleFilter -> Pagination
-               -> m [Article]
-  addArticle :: UserId -> CreateArticle -> Slug -> m ()
-  updateArticleBySlug :: Slug -> UpdateArticle -> Slug -> m ()
-  deleteArticleBySlug :: Slug -> m ()
-  favoriteArticleBySlug :: UserId -> Slug -> m ()
+  findArticles            :: Maybe Slug -> Maybe Bool -> Maybe CurrentUser
+                          -> ArticleFilter -> Pagination
+                          -> m [Article]
+  addArticle              :: UserId -> CreateArticle -> Slug -> m ()
+  updateArticleBySlug     :: Slug -> UpdateArticle -> Slug -> m ()
+  deleteArticleBySlug     :: Slug -> m ()
+  favoriteArticleBySlug   :: UserId -> Slug -> m ()
   unfavoriteArticleBySlug :: UserId -> Slug -> m ()
-  isArticleOwnedBy :: UserId -> Slug -> m (Maybe Bool)
-  isArticleExist :: Slug -> m Bool
+  isArticleOwnedBy        :: UserId -> Slug -> m (Maybe Bool)
+  isArticleExist          :: Slug -> m Bool
 
 class (Monad m) => TimeRepo m where
   currentTime :: m UTCTime

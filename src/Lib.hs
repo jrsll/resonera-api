@@ -53,53 +53,53 @@ instance AuthHTTP.Service AppT where
   resolveToken = AuthJWT.resolveToken
 
 instance ClaimHTTP.Service AppT where
-  addClaim = ClaimPG.addUserClaim
-  removeClaim = ClaimPG.removeUserClaim
+  addClaim         = ClaimPG.addUserClaim
+  removeClaim      = ClaimPG.removeUserClaim
   getClaimsForUser = ClaimPG.getClaimsForUser
 
 instance UserHTTP.Service AppT where
-  login = UserService.login
-  register = UserService.register
-  getUser = UserService.getUser
-  updateUser = UserService.updateUser
-  getProfile = UserService.getProfile
-  followUser = UserService.followUser
+  login        = UserService.login
+  register     = UserService.register
+  getUser      = UserService.getUser
+  updateUser   = UserService.updateUser
+  getProfile   = UserService.getProfile
+  followUser   = UserService.followUser
   unfollowUser = UserService.unfollowUser
 
 instance UserService.UserRepo AppT where
   findUserByAuth = UserPG.findUserByAuth
-  findUserById = UserPG.findUserById
-  addUser = UserPG.addUser
+  findUserById   = UserPG.findUserById
+  addUser        = UserPG.addUser
   updateUserById = UserPG.updateUserById
 
 instance UserService.ProfileRepo AppT where
-  findProfile = UserPG.findProfile
-  followUserByUsername = UserPG.followUserByUsername
+  findProfile            = UserPG.findProfile
+  followUserByUsername   = UserPG.followUserByUsername
   unfollowUserByUsername = UserPG.unfollowUserByUsername
 
 instance UserService.TokenRepo AppT where
   generateToken = UserJWT.generateToken
 
 instance ArticleHTTP.Service AppT where
-  getArticles = ArticleService.getArticles
-  getFeed = ArticleService.getFeed
-  getArticle = ArticleService.getArticle
-  createArticle = ArticleService.createArticle
-  updateArticle = ArticleService.updateArticle
-  deleteArticle = ArticleService.deleteArticle
-  favoriteArticle = ArticleService.favoriteArticle
+  getArticles       = ArticleService.getArticles
+  getFeed           = ArticleService.getFeed
+  getArticle        = ArticleService.getArticle
+  createArticle     = ArticleService.createArticle
+  updateArticle     = ArticleService.updateArticle
+  deleteArticle     = ArticleService.deleteArticle
+  favoriteArticle   = ArticleService.favoriteArticle
   unfavoriteArticle = ArticleService.unfavoriteArticle
-  getTags = ArticlePG.allTags
+  getTags           = ArticlePG.allTags
 
 instance ArticleService.ArticleRepo AppT where
-  findArticles = ArticlePG.findArticles
-  addArticle = ArticlePG.addArticle
-  updateArticleBySlug = ArticlePG.updateArticleBySlug
-  deleteArticleBySlug = ArticlePG.deleteArticleBySlug
-  favoriteArticleBySlug = ArticlePG.favoriteArticleBySlug
+  findArticles            = ArticlePG.findArticles
+  addArticle              = ArticlePG.addArticle
+  updateArticleBySlug     = ArticlePG.updateArticleBySlug
+  deleteArticleBySlug     = ArticlePG.deleteArticleBySlug
+  favoriteArticleBySlug   = ArticlePG.favoriteArticleBySlug
   unfavoriteArticleBySlug = ArticlePG.unfavoriteArticleBySlug
-  isArticleOwnedBy = ArticlePG.isArticleOwnedBy
-  isArticleExist = ArticlePG.isArticleExist
+  isArticleOwnedBy        = ArticlePG.isArticleOwnedBy
+  isArticleExist          = ArticlePG.isArticleExist
 
 instance ArticleService.TimeRepo AppT where
   currentTime = liftIO getCurrentTime
@@ -108,14 +108,14 @@ instance ArticleService.TagRepo AppT where
   allTags = ArticlePG.allTags
 
 instance CommentHTTP.Service AppT where
-  addComment = CommentService.addComment
-  delComment = CommentService.delComment
+  addComment  = CommentService.addComment
+  delComment  = CommentService.delComment
   getComments = CommentService.getComments
 
 instance CommentService.CommentRepo AppT where
   addCommentToSlug = CommentPG.addCommentToSlug
-  delCommentById = CommentPG.delCommentById
-  findComments = CommentPG.findComments
+  delCommentById   = CommentPG.delCommentById
+  findComments     = CommentPG.findComments
   isCommentOwnedBy = CommentPG.isCommentOwnedBy
-  isCommentExist = CommentPG.isCommentExist
-  isSlugExist = ArticlePG.isArticleExist
+  isCommentExist   = CommentPG.isCommentExist
+  isSlugExist      = ArticlePG.isArticleExist
