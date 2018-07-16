@@ -6,7 +6,6 @@ import           Data.Has              (getter)
 import qualified Data.Text             as T
 import           Data.Time.Clock.POSIX (getPOSIXTime)
 import           Feature.Auth.Types
-import           Feature.User.Types
 import           Jose.Jwa
 import           Jose.Jwt
 import           Platform.JWT

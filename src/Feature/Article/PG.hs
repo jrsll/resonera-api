@@ -109,7 +109,7 @@ findArticles maySlug mayFollowing mayCurrentUser articleFilter pagination =
             order by id desc
             limit greatest(0, ?) offset greatest(0, ?)
           |]
-    curUserId = maybe (-1) snd mayCurrentUser
+    curUserId = maybe (-1) currentUserId mayCurrentUser
     arg = ( curUserId, curUserId
           -- ^ 2 slots for current user id
           , In $ maybeToList maySlug

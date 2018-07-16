@@ -23,19 +23,19 @@ register param@(Register _ email pass) = do
     Right _  -> login $ Auth email pass
 
 getUser :: (UserRepo m) => CurrentUser -> m (Either UserError User)
-getUser (token, userId) = runExceptT $ do
+getUser CurrentUser{ currentUserToken = token, currentUserId = userId } = runExceptT $ do
   user <- ExceptT $ findUserById userId `orThrow` UserErrorNotFound (tshow userId)
   return $ user { userToken = token }
 
 updateUser :: (UserRepo m) => CurrentUser -> UpdateUser -> m (Either UserError User)
-updateUser curUser@(_, userId) param = runExceptT $ do
-  ExceptT $ updateUserById userId param
+updateUser curUser param = runExceptT $ do
+  ExceptT $ updateUserById (currentUserId curUser) param
   ExceptT $ getUser curUser
 
 class (Monad m) => UserRepo m where
   findUserByAuth :: Auth -> m (Maybe (UserId, User))
-  findUserById :: UserId -> m (Maybe User)
-  addUser :: Register -> Text -> m (Either UserError ())
+  findUserById   :: UserId -> m (Maybe User)
+  addUser        :: Register -> Text -> m (Either UserError ())
   updateUserById :: UserId -> UpdateUser -> m (Either UserError ())
 
 class (Monad m) => TokenRepo m where
@@ -45,19 +45,19 @@ class (Monad m) => TokenRepo m where
 
 getProfile :: (ProfileRepo m) => Maybe CurrentUser -> Username -> m (Either UserError Profile)
 getProfile mayCurUser username =
-  findProfile (snd <$> mayCurUser) username `orThrow` UserErrorNotFound username
+  findProfile (currentUserId <$> mayCurUser) username `orThrow` UserErrorNotFound username
 
 followUser :: (ProfileRepo m) => CurrentUser -> Username -> m (Either UserError Profile)
-followUser curUser@(_, curUserId) username = runExceptT $ do
-  ExceptT $ followUserByUsername curUserId username
+followUser curUser username = runExceptT $ do
+  ExceptT $ followUserByUsername (currentUserId curUser) username
   ExceptT $ getProfile (Just curUser) username
 
 unfollowUser :: (ProfileRepo m) => CurrentUser -> Username -> m (Either UserError Profile)
-unfollowUser curUser@(_, curUserId) username = do
-  unfollowUserByUsername curUserId username
+unfollowUser curUser username = do
+  unfollowUserByUsername (currentUserId curUser) username
   getProfile (Just curUser) username
 
 class (Monad m) => ProfileRepo m where
-  findProfile :: Maybe UserId -> Username -> m (Maybe Profile)
-  followUserByUsername :: UserId -> Username -> m (Either UserError ())
+  findProfile            :: Maybe UserId -> Username -> m (Maybe Profile)
+  followUserByUsername   :: UserId -> Username -> m (Either UserError ())
   unfollowUserByUsername :: UserId -> Username -> m ()

@@ -14,7 +14,7 @@ findUserByAuth (Auth email pass) = do
   results <- withConn $ \conn -> query conn qry (email, pass)
   case results of
     [(uId, name, bio, image)] -> do
-      claims <- withConn $ \conn -> query conn qry' (email, pass)
+      claims <- withConn $ \conn -> query conn qry' (Only uId)
       return $ Just (uId, User email "tempToken" name bio image claims)
     _ ->
       return Nothing

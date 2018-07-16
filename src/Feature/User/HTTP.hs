@@ -3,26 +3,26 @@ module Feature.User.HTTP
       , Service(..)
       ) where
 
-import ClassyPrelude hiding (delete)
+import           ClassyPrelude             hiding (delete)
 
-import Feature.User.Types
-import Feature.Auth.Types
-import Feature.Common.HTTP
-import qualified Feature.Auth.HTTP as Auth
-import Web.Scotty.Trans
-import Network.HTTP.Types.Status
-import qualified Text.Digestive.Form as DF
-import qualified Text.Digestive.Types as DF
-import Text.Digestive.Form ((.:))
-import Text.Regex
+import qualified Feature.Auth.HTTP         as Auth
+import           Feature.Auth.Types
+import           Feature.Common.HTTP
+import           Feature.User.Types
+import           Network.HTTP.Types.Status
+import           Text.Digestive.Form       ((.:))
+import qualified Text.Digestive.Form       as DF
+import qualified Text.Digestive.Types      as DF
+import           Text.Regex
+import           Web.Scotty.Trans
 
 class Monad m => Service m where
-  login :: Auth -> m (Either UserError User)
-  register :: Register -> m (Either UserError User)
-  getUser :: CurrentUser -> m (Either UserError User)
-  updateUser :: CurrentUser -> UpdateUser -> m (Either UserError User)
-  getProfile :: Maybe CurrentUser -> Username -> m (Either UserError Profile)
-  followUser :: CurrentUser -> Username -> m (Either UserError Profile)
+  login        :: Auth -> m (Either UserError User)
+  register     :: Register -> m (Either UserError User)
+  getUser      :: CurrentUser -> m (Either UserError User)
+  updateUser   :: CurrentUser -> UpdateUser -> m (Either UserError User)
+  getProfile   :: Maybe CurrentUser -> Username -> m (Either UserError Profile)
+  followUser   :: CurrentUser -> Username -> m (Either UserError Profile)
   unfollowUser :: CurrentUser -> Username -> m (Either UserError Profile)
 
 routes :: (Auth.Service m, Service m, MonadIO m) => ScottyT LText m ()
@@ -113,12 +113,12 @@ passwordValidation = DF.conditions [minLength 5]
 authForm :: (Monad m) => DF.Form [Text] m Auth
 authForm = Auth <$> "email" .: DF.validate emailValidation (DF.text Nothing)
                 <*> "password" .: DF.validate passwordValidation (DF.text Nothing)
-                
+
 registerForm :: (Monad m) => DF.Form [Text] m Register
 registerForm = Register <$> "username" .: DF.validate usernameValidation (DF.text Nothing)
                         <*> "email" .: DF.validate emailValidation (DF.text Nothing)
                         <*> "password" .: DF.validate passwordValidation (DF.text Nothing)
-                        
+
 updateUserForm :: (Monad m) => DF.Form [Text] m UpdateUser
 updateUserForm = UpdateUser <$> "email" .: DF.validateOptional emailValidation (DF.optionalText Nothing)
                             <*> "username" .: DF.validateOptional usernameValidation (DF.optionalText Nothing)

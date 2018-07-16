@@ -1,31 +1,31 @@
 module Feature.User.Types where
 
-import ClassyPrelude
-import Feature.Auth.Types
-import Database.PostgreSQL.Simple.FromRow
-import Platform.AesonUtil
+import           ClassyPrelude
+import           Database.PostgreSQL.Simple.FromRow
+import           Feature.Auth.Types
+import           Platform.AesonUtil
 
 type Username = Text
 type Password = Text
-type Email = Text
+type Email    = Text
 
 data Auth = Auth
-  { authEmail :: Email
+  { authEmail    :: Email
   , authPassword :: Password
   } deriving (Eq, Show)
 
 data Register = Register
   { registerUsername :: Username
-  , registerEmail :: Email
+  , registerEmail    :: Email
   , registerPassword :: Text
   } deriving (Show)
 
 data UpdateUser = UpdateUser
-  { updateUserEmail :: Maybe Email
+  { updateUserEmail    :: Maybe Email
   , updateUserUsername :: Maybe Username
   , updateUserPassword :: Maybe Password
-  , updateUserImage :: Maybe Text
-  , updateUserBio :: Maybe Text
+  , updateUserImage    :: Maybe Text
+  , updateUserBio      :: Maybe Text
   } deriving (Eq, Show)
 
 data User = User
@@ -37,15 +37,10 @@ data User = User
   , userClaims   :: [UserClaim]
   } deriving (Eq, Show)
 
-data UserClaim = UserClaim
-  { userClaimName :: Text
-  , userClaimValue :: Text
-  } deriving (Eq, Show)
-
 data Profile = Profile
-  { profileUsername :: Username
-  , profileBio :: Text
-  , profileImage :: Text
+  { profileUsername  :: Username
+  , profileBio       :: Text
+  , profileImage     :: Text
   , profileFollowing :: Bool
   } deriving (Eq, Show)
 
@@ -66,7 +61,6 @@ $(commonJSONDeriveMany
   , ''Profile
   , ''UserError
   , ''ProfileWrapper
-  , ''UserClaim
   , ''UserWrapper
   , ''Auth
   , ''Register
@@ -75,6 +69,3 @@ $(commonJSONDeriveMany
 
 instance FromRow Profile where
   fromRow = Profile <$> field <*> field <*> field <*> field
-
-instance FromRow UserClaim where
-  fromRow = UserClaim <$> field <*> field

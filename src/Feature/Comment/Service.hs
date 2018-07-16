@@ -1,9 +1,9 @@
 module Feature.Comment.Service where
 
-import ClassyPrelude
-import Control.Monad.Except
-import Feature.Comment.Types
-import Feature.Auth.Types
+import           ClassyPrelude
+import           Control.Monad.Except
+import           Feature.Auth.Types
+import           Feature.Comment.Types
 
 class (Monad m) => CommentRepo m where
   addCommentToSlug :: UserId -> Slug -> Text -> m CommentId
@@ -14,18 +14,18 @@ class (Monad m) => CommentRepo m where
   isSlugExist :: Slug -> m Bool
 
 addComment :: (CommentRepo m) => CurrentUser -> Slug -> Text -> m (Either CommentError Comment)
-addComment curUser@(_, curUserId) slug comment = runExceptT $ do
-  cId <- lift $ addCommentToSlug curUserId slug comment
+addComment curUser slug comment = runExceptT $ do
+  cId <- lift $ addCommentToSlug (currentUserId curUser) slug comment
   comments <- ExceptT $ getComments' (Just curUser) slug (Just cId)
   case comments of
     [a] -> return a
-    _ -> throwError $ CommentErrorNotFound cId
+    _   -> throwError $ CommentErrorNotFound cId
 
 delComment :: (CommentRepo m) => CurrentUser -> Slug -> CommentId -> m (Either CommentError ())
-delComment (_, curUserId) slug cId = runExceptT $ do
+delComment curUser slug cId = runExceptT $ do
   ExceptT $ validateArticleExists slug
   ExceptT $ validateCommentExists cId
-  ExceptT $ validateCommentOwnedBy curUserId cId
+  ExceptT $ validateCommentOwnedBy (currentUserId curUser) cId
   lift $ delCommentById cId
 
 getComments :: (CommentRepo m) => Maybe CurrentUser -> Slug -> m (Either CommentError [Comment])
@@ -34,7 +34,7 @@ getComments mayCurUser slug = getComments' mayCurUser slug Nothing
 getComments' :: (CommentRepo m) => Maybe CurrentUser -> Slug -> Maybe CommentId -> m (Either CommentError [Comment])
 getComments' mayCurUser slug mayCommentId = runExceptT $ do
   ExceptT $ validateArticleExists slug
-  lift $ findComments (snd <$> mayCurUser) slug mayCommentId
+  lift $ findComments (currentUserId <$> mayCurUser) slug mayCommentId
 
 validateArticleExists :: (CommentRepo m) => Slug -> m (Either CommentError ())
 validateArticleExists slug = runExceptT $ do
