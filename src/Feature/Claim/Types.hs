@@ -2,10 +2,11 @@ module Feature.Claim.Types where
 
 import           ClassyPrelude
 import           Data.Aeson
-import qualified Data.ByteString                      as B
+import           Data.Binary.Builder                  (putStringUtf8)
 import qualified Data.ByteString.Lazy                 as LB
 import           Database.PostgreSQL.Simple.FromField
 import           Database.PostgreSQL.Simple.FromRow
+import           Database.PostgreSQL.Simple.ToField
 import           Platform.AesonUtil
 import           Text.Read                            (lexP, readEither,
                                                        readMaybe, readPrec)
@@ -14,13 +15,13 @@ import qualified Text.Read.Lex                        as L
 newtype ClaimWrapper a = ClaimWrapper { claimWrapperClaim :: a } deriving (Eq, Show)
 
 data ClaimName =
-    UserClaimName
-  | ArticleClaimName
+    User
+  | Article
   deriving (Eq)
 
 data ClaimValue =
-    ReadPermission
-  | WritePermission
+    Read
+  | Write
   deriving (Eq)
 
 data Claim = Claim
@@ -45,30 +46,38 @@ $(commonJSONDeriveMany
 instance Show ClaimName where
   show cn =
     case cn of
-      ArticleClaimName -> "article"
-      UserClaimName    -> "user"
+      Article -> "Article"
+      User    -> "User"
 
 instance Show ClaimValue where
   show cn =
     case cn of
-      ReadPermission  -> "read"
-      WritePermission -> "write"
+      Read  -> "Read"
+      Write -> "Write"
 
 instance Read ClaimName where
   readPrec = do
     L.Ident s <- lexP
     case s of
-      "article" -> return ArticleClaimName
-      "user"    -> return UserClaimName
+      "Article" -> return Article
+      "User"    -> return User
       _         -> fail $ "Could not parse " ++ s ++ " into type ClaimName."
 
 instance Read ClaimValue where
   readPrec = do
     L.Ident s <- lexP
     case s of
-      "read"  -> return ReadPermission
-      "write" -> return WritePermission
+      "Read"  -> return Read
+      "Write" -> return Write
       _       -> fail $ "Could not parse " ++ s ++ " into type ClaimValue."
+
+instance ToField ClaimName where
+  toField =
+    Plain . putStringUtf8 . show
+
+instance ToField ClaimValue where
+  toField =
+    Plain . putStringUtf8 . show
 
 instance FromField ClaimName where
   fromField f mayDat =
@@ -88,22 +97,16 @@ instance FromRow Claim where
   fromRow = Claim <$> field <*> field <*> field
 
 instance ToJSON ClaimValue where
-  toJSON x =
-    case x of
-      ReadPermission  -> String "read"
-      WritePermission -> String "write"
+  toJSON = String . fromString . show
+
+instance ToJSON ClaimName where
+  toJSON = String . fromString . show
 
 instance FromJSON ClaimValue where
   parseJSON value =
     case value of
         String s  -> either fail return (readEither (show s))
         x         -> fail $ "Failed to parse JSON value " ++ show x ++ " to type ClaimValue, expected a string."
-
-instance ToJSON ClaimName where
-  toJSON x =
-    case x of
-      UserClaimName    -> String "user"
-      ArticleClaimName -> String "article"
 
 instance FromJSON ClaimName where
   parseJSON value =

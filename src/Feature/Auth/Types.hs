@@ -1,5 +1,6 @@
 module Feature.Auth.Types where
 
+import           Database.PostgreSQL.Simple.FromRow
 import           ClassyPrelude
 import           Feature.Claim.Types (ClaimName, ClaimValue)
 import           Platform.AesonUtil
@@ -26,6 +27,9 @@ data TokenError
   deriving (Eq, Show)
 
 -- Instances
+
+instance FromRow UserClaim where
+  fromRow = UserClaim <$> field <*> field
 
 $(commonJSONDeriveMany
   [ ''TokenError

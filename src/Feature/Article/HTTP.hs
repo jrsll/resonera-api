@@ -8,7 +8,7 @@ import           ClassyPrelude             hiding (delete)
 import           Feature.Article.Types
 import qualified Feature.Auth.HTTP         as Auth
 import           Feature.Auth.Types
-import           Feature.Claim.Types
+import qualified          Feature.Claim.Types as C
 import           Feature.Common.HTTP
 import           Feature.Common.Types
 import           Network.HTTP.Types.Status
@@ -51,14 +51,14 @@ routes = do
     json $ ArticleWrapper result
 
   post "/api/articles" $ do
-    Auth.requireClaim $ UserClaim ArticleClaimName WritePermission
+    Auth.requireClaim $ UserClaim C.Article C.Write
     curUser <- Auth.requireUser
     req <- parseJsonBody ("article" .: createArticleForm)
     result <- stopIfError articleErrorHandler $ createArticle curUser req
     json $ ArticleWrapper result
 
   put "/api/articles/:slug" $ do
-    Auth.requireClaim $ UserClaim ArticleClaimName WritePermission
+    Auth.requireClaim $ UserClaim C.Article C.Write
     curUser <- Auth.requireUser
     slug <- param "slug"
     req <- parseJsonBody ("article" .: updateArticleForm)
@@ -66,7 +66,7 @@ routes = do
     json $ ArticleWrapper result
 
   delete "/api/articles/:slug" $ do
-    Auth.requireClaim $ UserClaim ArticleClaimName WritePermission
+    Auth.requireClaim $ UserClaim C.Article C.Write
     curUser <- Auth.requireUser
     slug <- param "slug"
     stopIfError articleErrorHandler $ deleteArticle curUser slug
