@@ -4,7 +4,11 @@ import           ClassyPrelude
 import           Database.PostgreSQL.Simple
 import           Feature.Auth.Types
 import           Feature.Common.PG
-import           Feature.User.Types
+import           Feature.User.Types         (Auth (Auth), Email, Profile,
+                                             Register (Register),
+                                             UpdateUser (UpdateUser),
+                                             User (User), UserError (..),
+                                             Username)
 import           Platform.PG
 
 -- * UserRepo

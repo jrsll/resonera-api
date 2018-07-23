@@ -1,12 +1,12 @@
 module Feature.Auth.HTTP where
 
-import ClassyPrelude
-import Feature.Auth.Types
-import Feature.Common.Util (orThrow)
-import Feature.Common.HTTP
-import Control.Monad.Except
-import Web.Scotty.Trans
-import Network.HTTP.Types.Status
+import           ClassyPrelude
+import           Control.Monad.Except
+import           Feature.Auth.Types
+import           Feature.Common.HTTP
+import           Feature.Common.Util       (orThrow)
+import           Network.HTTP.Types.Status
+import           Web.Scotty.Trans
 
 class Monad m => Service m where
   resolveToken :: Token -> m (Either TokenError CurrentUser)
@@ -23,11 +23,23 @@ optionalUser :: (Service m) => ActionT LText m (Maybe CurrentUser)
 optionalUser =
   either (const Nothing) Just <$> getCurrentUser
 
+requireClaim :: (Service m) => UserClaim -> ActionT LText m ()
+requireClaim claim = do
+  user <- requireUser
+  case find (== claim) (currentUserClaims user) of
+    Nothing -> tokenErrorHandler (TokenErrorMissingClaim claim)
+    Just _  -> return ()
+  where
+    tokenErrorHandler e = do
+      status status401
+      json e
+      finish
+
 requireUser :: (Service m) => ActionT LText m CurrentUser
 requireUser = do
   result <- getCurrentUser
   stopIfError tokenErrorHandler (pure result)
-  where 
+  where
     tokenErrorHandler e = do
       status status401
       json e

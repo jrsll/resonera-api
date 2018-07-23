@@ -1,8 +1,8 @@
 module Feature.Auth.Types where
 
-import ClassyPrelude
-import Platform.AesonUtil
-import           Database.PostgreSQL.Simple.FromRow
+import           ClassyPrelude
+import           Feature.Claim.Types (ClaimName, ClaimValue)
+import           Platform.AesonUtil
 
 type Token  = Text
 type UserId = Integer
@@ -13,8 +13,8 @@ data CurrentUser = CurrentUser
   , currentUserClaims :: [UserClaim] }
 
 data UserClaim = UserClaim
-  { userClaimName  :: Text
-  , userClaimValue :: Text
+  { userClaimName  :: ClaimName
+  , userClaimValue :: ClaimValue
   } deriving (Eq, Show)
 
 data TokenError
@@ -22,12 +22,10 @@ data TokenError
   | TokenErrorNotFound
   | TokenErrorExpired
   | TokenErrorMalformed String
+  | TokenErrorMissingClaim UserClaim
   deriving (Eq, Show)
 
 -- Instances
-
-instance FromRow UserClaim where
-  fromRow = UserClaim <$> field <*> field
 
 $(commonJSONDeriveMany
   [ ''TokenError

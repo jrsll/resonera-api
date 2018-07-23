@@ -27,32 +27,33 @@ dependencies:
 library:
   source-dirs: src
   dependencies:
-  - scotty
-  - postgresql-simple
-  - postgresql-simple-migration
-  - data-has
   - aeson
-  - time
-  - mtl
-  - regex-compat
-  - http-types
-  - resource-pool
-  - warp-tls
-  - warp
+  - bytestring
+  - convertible
+  - cryptonite
+  - data-has
   - digestive-functors
   - digestive-functors-aeson
-  - lens
-  - text
-  - wai
-  - jose-jwt
-  - cryptonite
-  - slug
-  - convertible
-  - wai-cors
-  - template-haskell
-  # client
-  - wreq
   - http-client
+  - http-types
+  - jose-jwt
+  - lens
+  - mtl
+  - postgresql-simple
+  - postgresql-simple-migration
+  - regex-compat
+  - resource-pool
+  - scotty
+  - slug
+  - template-haskell
+  - text
+  - time
+  - wai
+  - wai-cors
+  - warp
+  - warp-tls
+  - wreq
+  # client
   ghc-options:
   - -Wall
   - -Werror

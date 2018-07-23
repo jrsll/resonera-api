@@ -5,6 +5,8 @@ module Feature.Claim.HTTP
 
 import           ClassyPrelude             hiding (delete)
 
+import           Data.Aeson                (eitherDecode)
+import qualified Data.ByteString.Lazy      as LB
 import           Feature.Auth.Types
 import           Feature.Claim.Types
 import           Feature.Common.HTTP
@@ -13,7 +15,6 @@ import           Text.Digestive.Form       ((.:))
 import qualified Text.Digestive.Form       as DF
 import qualified Text.Digestive.Types      as DF
 import           Text.Read                 (read)
-import           Text.Regex
 import           Web.Scotty.Trans
 
 class Monad m => Service m where
@@ -50,23 +51,19 @@ claimErrorHandler err = do
 
 -- * Request deserialization & validation
 
-matchesRegex :: v -> String -> Text -> DF.Result v Text
-matchesRegex errMsg regexStr str =
-  if isJust . matchRegex (mkRegexWithOpts regexStr True True) . unpack $ str
-    then DF.Success str
-    else DF.Error errMsg
+claimNameValidation :: Text -> DF.Result [Text] ClaimName
+claimNameValidation txt =
+  case eitherDecode bs of
+    Left err -> DF.Error [pack err]
+    Right cn -> DF.Success cn
+  where bs = LB.fromStrict $ encodeUtf8 txt
 
-minLength :: MonoFoldable a => Int -> a -> DF.Result Text a
-minLength n str = if length str >= n then DF.Success str else DF.Error $ "Minimum length is " <> tshow n
-
-maxLength :: MonoFoldable a => Int -> a -> DF.Result Text a
-maxLength n str = if length str <= n then DF.Success str else DF.Error $ "Maximum length is " <> tshow n
-
-claimNameValidation :: Text -> DF.Result [Text] Text
-claimNameValidation = DF.conditions [minLength 3, maxLength 10, matchesRegex "Should be alphanumeric" "^[a-zA-Z0-9]+$"]
-
-claimValueValidation :: Text -> DF.Result [Text] Text
-claimValueValidation = DF.conditions [minLength 3, maxLength 15, matchesRegex "Should be alphanumeric" "^[a-zA-Z0-9]+$"]
+claimValueValidation :: Text -> DF.Result [Text] ClaimValue
+claimValueValidation txt =
+  case eitherDecode bs of
+    Left err -> DF.Error [pack err]
+    Right cn -> DF.Success cn
+  where bs = LB.fromStrict $ encodeUtf8 txt
 
 claimForm :: (Monad m) => DF.Form [Text] m Claim
 claimForm = Claim <$> "name"   .: DF.validate claimNameValidation (DF.text Nothing)

@@ -51,6 +51,12 @@ routes = do
     result <- stopIfError userErrorHandler $ updateUser curUser req
     json $ UserWrapper result
 
+  -- user admin
+
+  get "/api/admin/users" $ do
+    curUser <- Auth.requireUser
+    result <- stopIfError userErrorHandler $ getUser curUser
+    json $ UserWrapper result
 
   -- profiles
 
